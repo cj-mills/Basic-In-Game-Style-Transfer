@@ -53,7 +53,6 @@ public class StyleTransfer : MonoBehaviour
 
         // Create a Tensor of shape [1, processedImage.height, processedImage.width, 3]
         Tensor input = new Tensor(processedImage, channels: 3);
-        //Tensor input = new Tensor(imageTexture, channels: 3);
         // Remove the processedImage variable
         Destroy(processedImage);
 
@@ -69,7 +68,6 @@ public class StyleTransfer : MonoBehaviour
         // Remove the imageTexture variable
         Destroy(imageTexture);
         // Copy prediction data to modelOutput
-        //prediction.ToRenderTexture(processedOutput);
         prediction.ToRenderTexture(modelOutput);
         // Release GPU resources allocated for the Tensor
         prediction.Dispose();
