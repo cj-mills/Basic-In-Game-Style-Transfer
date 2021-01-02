@@ -1,4 +1,4 @@
-# Basic In-Game Style Transfer
+# Basic In-Game Style Transfer Tutorial
 
 ![](https://github.com/cj-mills/christianjmills/raw/master/images/in-game-style-transfer-experiments/part-1/my_mosaic.gif)
 
@@ -6,3 +6,4 @@ This project uses models trained with this [`fast_neural_style`](https://github.
 
 **Important:** This is meant as a simple proof of concept and requires a powerful GPU to get playable frame rates.
 
+## [Tutorial Link](https://christianjmills.com/Basic-In-Game-Style-Transfer-Tutorial/)
