@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Barracuda;
+using System.Linq;
 
 public class StyleTransfer : MonoBehaviour
 {
@@ -49,25 +50,33 @@ public class StyleTransfer : MonoBehaviour
         // Copy data from cameraInput to an SDR Texture2D
         Texture2D imageTexture = ToTexture2D(camerInput, TextureFormat.RGBA32);
         // Apply preprocessing operations
-        Texture2D processedImage = ProcessImage(imageTexture, "ProcessInput");
+        //Texture2D processedImage = ProcessImage(imageTexture, "ProcessInput");
+        Texture2D processedImage = ProcessImage(imageTexture, "Normalize2");
+        //Texture2D processedImage = ToTexture2D(camerInput, TextureFormat.RGBA32);
 
         // Create a Tensor of shape [1, processedImage.height, processedImage.width, 3]
+        //Tensor input = new Tensor(imageTexture, channels: 3);
         Tensor input = new Tensor(processedImage, channels: 3);
         // Remove the processedImage variable
+        //Destroy(imageTexture);
         Destroy(processedImage);
 
         // Execute neural network with the provided input
         engine.Execute(input);
         // Get the raw model output
         Tensor prediction = engine.PeekOutput();
+        //float[] pred_array = prediction.data.Download(prediction.shape);
+        //Debug.Log(pred_array.Min());
         // Release GPU resources allocated for the Tensor
         input.Dispose();
 
         // Create a new HDR RenderTexture to store the model output
+        //RenderTexture modelOutput = new RenderTexture(imageTexture.width, imageTexture.height, 24, RenderTextureFormat.ARGBHalf);
         RenderTexture modelOutput = new RenderTexture(processedImage.width, processedImage.height, 24, RenderTextureFormat.ARGBHalf);
         // Remove the imageTexture variable
         Destroy(imageTexture);
         // Copy prediction data to modelOutput
+        //prediction.ToRenderTexture(processedOutput);
         prediction.ToRenderTexture(modelOutput);
         // Release GPU resources allocated for the Tensor
         prediction.Dispose();
@@ -77,14 +86,17 @@ public class StyleTransfer : MonoBehaviour
         // Remove the modelOutput variable
         Destroy(modelOutput);
         // Apply postprocessing operations
-        processedImage = ProcessImage(imageTexture, "ProcessOutput");
+        processedImage = ProcessImage(imageTexture, "DeNormalize2");
+        //processedImage = ProcessImage(imageTexture, "ProcessOutput");
         // Remove the imageTexture variable
         Destroy(imageTexture);
 
         // Copy the data from the Texture2D to the RenderTexture
+        //Graphics.Blit(imageTexture, processedOutput);
         Graphics.Blit(processedImage, processedOutput);
         // Remove the processedImage variable
         Destroy(processedImage);
+        //Destroy(imageTexture);
     }
 
     /// <summary>
