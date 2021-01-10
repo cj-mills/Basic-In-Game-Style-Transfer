@@ -2,6 +2,12 @@
 #pragma kernel ProcessInput
 #pragma kernel ProcessInput2
 #pragma kernel ProcessOutput
+#pragma kernel ProcessOutput2
+#pragma kernel ProcessOutput3
+#pragma kernel Normalize
+#pragma kernel Normalize2
+#pragma kernel DeNormalize2
+#pragma kernel DeNormalize3
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
@@ -25,10 +31,75 @@ void ProcessInput2(uint3 id : SV_DispatchThreadID)
         (InputImage[id.xy].z - 0.406h) / 0.225h, 1.0h);
 }
 
+//[numthreads(8, 8, 1)]
+//void ProcessOutput3(uint3 id : SV_DispatchThreadID)
+//{
+//    Result[id.xy] = half4(((clamp(InputImage[id.xy].x, -1.0f, 1.0f) + 1) * 127.5f),
+//        ((clamp(InputImage[id.xy].y, -1.0f, 1.0f) + 1) * 127.5f),
+//        ((clamp(InputImage[id.xy].z, -1.0f, 1.0f) + 1) * 127.5f), 1.0h);
+//}
+
 [numthreads(8,8,1)]
 void ProcessOutput(uint3 id : SV_DispatchThreadID)
 {
     Result[id.xy] = half4((clamp(InputImage[id.xy].x, 0.0f, 255.0f) / 255.0f),
         (clamp(InputImage[id.xy].y, 0.0f, 255.0f) / 255.0f),
         (clamp(InputImage[id.xy].z, 0.0f, 255.0f) / 255.0f), 1.0h);
+}
+
+[numthreads(8, 8, 1)]
+void ProcessOutput2(uint3 id : SV_DispatchThreadID)
+{
+    Result[id.xy] = half4(((clamp(InputImage[id.xy].x, -1.0f, 1.0f) + 1.0f) / 2.0f),
+        ((clamp(InputImage[id.xy].y, -1.0f, 1.0f) + 1.0f) / 2.0f),
+        ((clamp(InputImage[id.xy].z, -1.0f, 1.0f) + 1.0f) / 2.0f), 1.0f);
+}
+
+[numthreads(8, 8, 1)]
+void ProcessOutput3(uint3 id : SV_DispatchThreadID)
+{
+    Result[id.xy] = half4((clamp(InputImage[id.xy].x + 0.5f, 0.0f, 1.0f)),
+        (clamp(InputImage[id.xy].y + 0.5f, 0.0f, 1.0f)),
+        (clamp(InputImage[id.xy].z + 0.5f, 0.0f, 1.0f)), 1.0h);
+}
+
+
+[numthreads(8, 8, 1)]
+void Normalize(uint3 id : SV_DispatchThreadID)
+{
+    //2 * (value - min) / (max - min) - 1
+    Result[id.xy] = half4((2.0h * (InputImage[id.xy].x) / (1.0h) - 1.0h),
+        (2.0h * (InputImage[id.xy].y) / (1.0h) - 1.0h),
+        (2.0h * (InputImage[id.xy].z) / (1.0h) - 1.0h), 1.0h);
+
+}
+
+[numthreads(8, 8, 1)]
+void Normalize2(uint3 id : SV_DispatchThreadID)
+{
+    // image = (image - mean) / std
+    Result[id.xy] = half4(((InputImage[id.xy].x - 0.5h) / 0.5h),
+        ((InputImage[id.xy].y - 0.5h) / 0.5h),
+        ((InputImage[id.xy].z - 0.5h) / 0.5h), 1.0h);
+
+}
+
+[numthreads(8, 8, 1)]
+void DeNormalize2(uint3 id : SV_DispatchThreadID)
+{
+    // image = ((image * std) + mean)
+    Result[id.xy] = half4(((clamp(InputImage[id.xy].x, -1.0f, 1.0f) * 0.5h) + 0.5h),
+        ((clamp(InputImage[id.xy].y, -1.0f, 1.0f) * 0.5h) + 0.5h),
+        ((clamp(InputImage[id.xy].z, -1.0f, 1.0f) * 0.5h) + 0.5h), 1.0h);
+
+}
+
+[numthreads(8, 8, 1)]
+void DeNormalize3(uint3 id : SV_DispatchThreadID)
+{
+    // image = ((image * std) + mean)
+    Result[id.xy] = half4(((clamp(InputImage[id.xy].x, 0.0f, 1.0f))),
+        ((clamp(InputImage[id.xy].y, 0.0f, 1.0f))),
+        ((clamp(InputImage[id.xy].z, 0.0f, 1.0f))), 1.0h);
+
 }
